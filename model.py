@@ -31,7 +31,7 @@ class Model():
             self.model.load_state_dict(torch.load(saved_checkpoint))
             
         #hyperparameters
-        self.num_epochs = 1
+        self.num_epochs = 15
         self.learning_rate = 0.001
 
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -105,7 +105,7 @@ class Model():
         return np.argmax(self.predict(image))
         
 
-    def create_vectors(self, dataset):
+    def create_vectors(self, dataset, output_path):
         # freeze layers
         for parameters in self.model.parameters():
             parameters.requires_grad = False
@@ -114,12 +114,13 @@ class Model():
         features = list(self.model.classifier.children())[:-1]
         self.model.classifier = nn.Sequential(*features)
 
-
         self.model.eval()
         res = []
 
         for image, target in dataset:
             logits = self.model(image[None, ...])
-            res.append(logits.numpy().flatten())
+            res.append([target, logits.numpy().flatten()])
+        with open(output_path, 'w') as output_file:
+            json.dump(res, output_file)
         return res
         
