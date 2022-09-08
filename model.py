@@ -119,7 +119,7 @@ class Model():
 
         for image, target in dataset:
             logits = self.model(image[None, ...])
-            res.append([target, logits.numpy().flatten()])
+            res.append([target, logits.numpy().flatten().tolist()])
         with open(output_path, 'w') as output_file:
             json.dump(res, output_file)
         return res
